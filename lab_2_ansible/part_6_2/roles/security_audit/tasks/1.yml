@@ -1,0 +1,25 @@
+---
+
+- name: Проверить права для /etc/shadow
+  stat:
+    path: /etc/shadow
+  register: shadow_file
+
+- name: Проверить права для /root/.ssh/*
+  find:
+    paths: /root/.ssh
+    recurse: yes
+  register: root_ssh_files
+
+- name: Проверить права для /home/*/.ssh/*
+  find:
+    paths: /home/*/ .ssh
+    recurse: yes
+  register: home_ssh_files
+
+- name: Вывести результаты проверки
+  debug:
+    msg: |
+      Права для /etc/shadow: {{ shadow_file.stat.mode }}
+      Права для /root/.ssh/*: {% for file in root_ssh_files.files %} {{ file.mode }} {% endfor %}
+      Права для /home/*/.ssh/*: {% for file in home_ssh_files.files %} {{ file.mode }} {% endfor %}

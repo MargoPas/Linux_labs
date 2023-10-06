@@ -1,0 +1,24 @@
+---
+- name: Create User and Add to sudoers Group
+  hosts: web_servers 
+  become: yes  # Использовать права sudo
+
+  vars:
+    new_username: ansible_user  # Замените на имя пользователя, которое вы хотите создать
+    user_password: ansible_password 
+
+  tasks:
+    - name: Create user
+      user:
+        name: "{{ new_username }}"
+        password: "{{ user_password | password_hash('sha512') }}"  # Хэшировать пароль
+        shell: /bin/bash
+      when: new_username is defined  # Выполнять только если new_username определено
+
+    - name: Add user to the sudoers group
+      lineinfile:
+        path: /etc/sudoers
+        line: "{{ new_username }} ALL=(ALL:ALL) NOPASSWD:ALL"
+        state: present
+        validate: visudo -cf %s  # Проверка конфигурации sudoers
+      when: new_username is defined

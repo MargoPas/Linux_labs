@@ -1,0 +1,6 @@
+---
+- name: Security Audit
+  hosts: web_servers
+  become: yes
+  roles:
+    - security_audit

@@ -1,0 +1,3 @@
+/usr/lib/snapd/snap-confine
+/usr/lib/policykit-1/polkit-agent-helper-1
+/snap/snapd/20092/usr/lib/snapd/snap-confine

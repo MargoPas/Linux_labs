@@ -1,0 +1,20 @@
+Security Audit Report
+----------------------
+
+File Permissions Check:
+{% for file in file_permissions.files %}
+{{ file.path }} - {{ file.mode }}
+{% endfor %}
+
+SUID Executables:
+{% for file in suid_files.results %}
+{{ file.item.path }} - {{ file.item.mode }}
+{% endfor %}
+
+Vulnerable Kernel Packages:
+{{ vulnerable_kernel_packages.stdout }}
+
+Unsafe sshd_config Directives Removed:
+{% for directive in ssh_unsafe_directives %}
+{{ directive }}
+{% endfor %}

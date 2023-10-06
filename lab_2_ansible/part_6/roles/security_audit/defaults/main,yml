@@ -1,0 +1,6 @@
+---
+ssh_unsafe_directives:
+  - PermitRootLogin
+  - PasswordAuthentication
+
+sshd_config_path: /etc/ssh/sshd_config

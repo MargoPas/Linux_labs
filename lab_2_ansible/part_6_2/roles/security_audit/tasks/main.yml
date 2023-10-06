@@ -1,0 +1,134 @@
+- name: Check /etc/shadow permissions
+  stat:
+    path: /etc/shadow
+  register: etc_shadow
+
+- name: Вывести права для файла /etc/shadow
+  debug:
+    msg: "Права для /etc/shadow: {{ etc_shadow.stat.mode }}"
+
+- name: Check /root/.ssh/ permissions
+  find:
+    paths: /root/.ssh/
+    recurse: yes
+  register: root_ssh
+
+- name: Вывести права для файлов в /root/.ssh/
+  debug:
+    msg: "Права для {{ item.path }}: {{ item.stat.mode }}"
+  with_items: "{{ root_ssh.files }}"
+
+- name: Check /home/*/.ssh/ permissions
+  command:
+    cmd: find /home/ -name ".ssh" -exec sh -c 'cd {} && ls -la' \;
+  register: home_ssh
+
+- name: Вывести результат выполнения скрипта
+  debug:
+    var: home_ssh.stdout_lines
+
+- name: Copy script suid
+  copy:
+    src=find_suid.sh
+    dest=/root/find_suid.sh
+
+- name: Changing perm for suid
+  command:
+    cmd: chmod a+x /root/find_suid.sh
+
+- name: Run script suid
+  command:
+    cmd: /root/find_suid.sh
+  register: output
+
+- name: Вывести результат выполнения скрипта
+  debug:
+    var: output.stdout_lines
+
+- name: Copy script CVE-2022-0847
+  copy:
+    src=dpipe.sh
+    dest=/root/dpipe.sh
+
+- name: Changing perm for suid                            
+  command:
+    cmd: chmod a+x /root/dpipe.sh
+
+- name: Run script suid
+  command:
+    cmd: /root/dpipe.sh
+  register: output
+
+
+- name: Вывести результат выполнения скрипта
+  debug:
+    var: output.stdout_lines
+
+- name: Copy script CVE-2016-5195
+  copy:
+    src=dirty_cow.sh
+    dest=/root/dirty_cow.sh    
+
+- name: Copy script CVE-2016-5195
+  copy:
+    src=dirtyc0w
+    dest=/root/dirtyc0w
+
+- name: Changing perm for dirty_cow
+  command:
+    cmd: chmod a+x /root/dirtyc0w
+
+- name: Changing perm for dirty_cow
+  command:
+    cmd: chmod a+x /root/dirty_cow.sh  
+
+- name: Run script dirty_cow
+  command:
+    cmd: /root/dirty_cow.sh
+  register: output
+
+
+- name: Вывести результат выполнения скрипта
+  debug:
+    var: output.stdout_lines
+
+- name: Copy script pwnkit
+  copy:
+    src=pwnkit.py
+    dest=/root/pwnkit.py
+
+- name: Changing perm for pwnkit.py
+  command:
+    cmd: chmod a+x /root/pwnkit.py
+
+- name: Run script pwnkit.py
+  shell: /root/pwnkit.py
+  register: output
+
+
+- name: Вывести результат выполнения скрипта
+  debug:
+    var: output.stdout_lines
+
+- name: Copy ssh
+  copy: 
+    src=ssh_check.sh 
+    dest=/root/ssh_check.sh
+
+- name: Changing perm of "/root/ssh_check.sh", adding "+x"
+  command:
+    cmd: chmod a+x /root/ssh_check.sh
+
+- name: Run script to check ssh
+  command: 
+    cmd: /root/ssh_check.sh
+  register: output
+
+- name: Вывести результат выполнения скрипта
+  debug:
+    var: output.stdout_lines
+
+- name: Создать файл отчета
+  template:
+    src: templates/report.j2
+    dest: ./отчет.txt

@@ -1,0 +1,18 @@
+---
+- name: Копирование скрипта и настройка cronjob
+  hosts: web_servers 
+  become: yes
+
+  tasks:
+    - name: Копировать скрипт на сервер
+      copy:
+        src: ~/Linux_labs/lab_1_linux/part_1/2_good_morning.sh  # Укажите путь к вашему скрипту
+        dest: /usr/local/bin/2_good_morning.sh  # Укажите путь, куда скопировать скрипт
+        mode: '0755'  # Установите права на выполнение
+
+    - name: Добавить cronjob для скрипта
+      cron:
+        name: "my_cronjob"  # Укажите имя cronjob
+        minute: "0"
+        hour: "2"
+        job: "/usr/local/bin/2_good_morning.sh"  # Укажите путь к скопированному скрипту

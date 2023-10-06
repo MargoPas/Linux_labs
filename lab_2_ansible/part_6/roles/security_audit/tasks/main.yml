@@ -1,0 +1,54 @@
+---
+- name: Проверить права для /etc/shadow
+  stat:
+    path: /etc/shadow
+  register: shadow_file
+
+- name: Проверить права для /root/.ssh/*
+  find:
+    paths: /root/.ssh
+    recurse: yes
+  register: root_ssh_files
+
+- name: Проверить права для /home/*/.ssh/*
+  find:
+    paths: /home/*/ .ssh
+    recurse: yes
+  register: home_ssh_files
+
+- name: Вывести результаты проверки
+  debug:
+    msg: |
+      Права для /etc/shadow: {{ shadow_file.stat.mode | string }}
+      Права для /root/.ssh/*: {% for file in root_ssh_files.files %} {{ file.mode | string }} {% endfor %}
+      Права для /home/*/.ssh/*: {% for file in home_ssh_files.files %} {{ file.mode | string }} {% endfor %}
+
+- name: Найти исполняемые файлы с SUID-битом
+  find:
+    paths: /home/ansible_user/ansible
+    patterns: "*"
+    recurse: true
+    file_type: file
+    use_regex: false
+    get_checksum: true
+  register: suid_files
+  ignore_errors: yes
+
+- name: Клонировать репозиторий DirtyPipe Checker
+  git:
+    repo: https://github.com/basharkey/CVE-2022-0847-dirty-pipe-checker.git
+    dest: /tmp/CVE-2022-0847-dirty-pipe-checker
+    force: yes
+
+- name: Установить права на выполнение скрипта dpipe.sh
+  command:
+    cmd: chmod +x /tmp/CVE-2022-0847-dirty-pipe-checker/dpipe.sh
+
+- name: Выполнить скрипт dpipe.sh и сохранить вывод
+  command:
+    cmd: cd /tmp/CVE-2022-0847-dirty-pipe-checker/ 
+  register: dpipe_output
+
+- name: Вывести результаты проверки уязвимости
+  debug:
+    var: dpipe_output.stdout_lines

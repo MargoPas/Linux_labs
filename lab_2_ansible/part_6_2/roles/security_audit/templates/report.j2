@@ -1,0 +1,5 @@
+# templates/report_template.j2
+Права для /etc/shadow: {{ etc_shadow.stat.mode }}
+{% for item in root_ssh.files %}
+Права для {{ item.path }}: {{ item.stat.mode }}
+{% endfor %}
