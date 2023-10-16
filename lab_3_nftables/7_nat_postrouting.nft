@@ -1,0 +1,6 @@
+table inet nat {
+    chain postrouting {
+        type nat hook postrouting priority 0;
+        ip saddr set 192.168.0.100;
+    }
+}

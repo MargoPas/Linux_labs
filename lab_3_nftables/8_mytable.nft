@@ -1,0 +1,16 @@
+table inet mytable {
+    set blocked_ips {
+        type ipv4_addr;
+        elements = { 192.168.0.3, 192.168.0.4 }; 
+    }
+
+    set blocked_ports {
+        type inet_service;
+        elements = { 8080,9090  };
+    }
+
+    chain output {
+        type filter hook output priority 0; policy drop;
+        ip daddr @blocked_ips tcp dport @blocked_ports drop;
+    }
+}
